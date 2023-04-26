@@ -19,7 +19,7 @@ class Seleccion:
             if vueltas == 1:
                 return random.choice(ruleta)
             elif vueltas > 1: 
-                return list(map(lambda x: random.choice(ruleta), range(vueltas)))
+                return list(map(lambda iteracion: random.choice(ruleta), range(vueltas)))
         
         ruleta = generar_ruleta(cromosomas)
         return girar_ruleta(ruleta,vueltas=vueltas)

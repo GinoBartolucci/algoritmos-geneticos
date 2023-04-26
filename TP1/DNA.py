@@ -6,7 +6,12 @@ from Cromosoma import Cromosoma
 class DNA: 
 
     @staticmethod
-    def generar_poblacion(cantidad_cromosomas, cantidad_genes):
+    def generar_poblacion(cantidad_cromosomas:int, cantidad_genes:int):
+        """
+            -> list:Cromosoma
+            cantidad_cromomas: int
+            cantidad_genes: int
+        """
         poblacion = []
         for iteracion in range(cantidad_cromosomas):
             cromosoma = DNA.generar_cromosoma(cantidad_genes)
@@ -25,7 +30,7 @@ class DNA:
 
     
 
-    def __init__(self,poblacion=None,ciclos=20):
+    def __init__(self,poblacion:list=None,ciclos:int=20):
         self.poblacion = poblacion
         self.fitness = {"Suma":0,"Promedio":0,"Maximo":0}
         self.objetivo = {"Suma":0,"Promedio":0,"Maximo":0}
