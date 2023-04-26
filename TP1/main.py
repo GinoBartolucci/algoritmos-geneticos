@@ -111,7 +111,7 @@ if __name__ == '__meain__':
     
 
 if __name__ == '__main__':
-    ciclos = 10
+    ciclos = 20
     funcion_objetivo = lambda x: (x /( (2**30) -1 ))**2
     fitness = lambda obj,sum_obj: obj/sum_obj
     # poblaciones = []
@@ -124,5 +124,5 @@ if __name__ == '__main__':
         nueva_poblacion = ciclo(poblacion,funcion_objetivo,fitness,i)
         poblacion = nueva_poblacion
         # poblaciones.append(poblacion)    
-        print('---------------------')
+        print(f'-----------{i+1}------------')
         

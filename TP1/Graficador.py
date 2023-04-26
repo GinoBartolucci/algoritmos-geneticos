@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from IPython.display import Image, display
 
 # left_coordinates=[1,2,3,4,5]
 # heights=[10,20,30,15,40]
@@ -55,9 +56,13 @@ def crearPieChart(encabezado, filas):
     
 
 def graph_to_png(nombre):
-    plt.savefig(f'TP1/graficos/{nombre}.png')
+    try:
+        plt.savefig(f'TP1/graficos/{nombre}.png')
+    except FileNotFoundError:
+        plt.show()
+
+
     plt.clf()
-    
 
 
 def mostrar():
