@@ -96,6 +96,7 @@ class Funciones:
                 hijos.append(padres_bianrio[i])
                 hijos.append(padres_bianrio[i+1])
         return hijos
+    
     @classmethod
     def convertirPoblacionBin(cls, pob_dec):
         pob_bin = []
@@ -111,3 +112,25 @@ class Funciones:
             # convirtiendo cada número binario en decimal.
             pob_dec.append(int(binario,2))
         return pob_dec
+    
+    @classmethod
+    def mutacion(cls, hijos_bin, prob_mutacion):
+        hijos_mutados = []
+        for hijo in hijos_bin:
+            opciones = [True, False]
+            np.random.seed()
+            # Probabilidades de cada opción
+            prob_mut = np.array([prob_mutacion, (1-prob_mutacion)])
+            mut = np.random.choice(opciones, size=1, p=prob_mut)
+            if mut[0]:
+                posiciones = [x for x in range(0, 30)]
+                probMutacion = [1/30 for x in range(0, 30)]
+                # Devuelve ndarray de 1 elemento
+                posicionMutacion = np.random.choice(posiciones, size=1, p=probMutacion)
+                posicionMutacion = posicionMutacion[0]
+                if hijo[posicionMutacion] == '0':
+                    hijo = hijo[:posicionMutacion] + '1' + hijo[posicionMutacion+1:]
+                else:
+                    hijo = hijo[:posicionMutacion] + '0' + hijo[posicionMutacion+1:]
+            hijos_mutados.append(hijo)
+        return hijos_mutados
