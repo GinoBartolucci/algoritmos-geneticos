@@ -1,24 +1,28 @@
 import numpy as np
 import pandas as pd
 
-def convertirPoblacionDecimal(pob_bin):
-        pob_dec = []
-        for binario in pob_bin:
-            # convirtiendo cada número binario en decimal.
-            pob_dec.append(int(binario,2))
-        return pob_dec
+def convertirPoblacion(pob_ini, bin=True): # Pasar False para convertir a decimal
+    pob_fin = []
+    for numero in pob_ini:
+        if bin:
+            # convirtiendo cada número decimal en binario de 8 dígitos.
+            pob_fin.append(format(numero,'030b'))
+        else:
+            pob_fin.append(int(str(numero), 2))
+    return pob_fin
 
-def mutacion(hijos_bin, prob_mutacion):
+def mutacion(hijos_binarios, prob_mutacion):
         hijos_mutados = []
-        for hijo in hijos_bin:
+        genes = len(str(hijos_binarios[0]))
+        for hijo in hijos_binarios:
             opciones = [True, False]
             np.random.seed()
             # Probabilidades de cada opción
             prob_mut = np.array([prob_mutacion, (1-prob_mutacion)])
             mut = np.random.choice(opciones, size=1, p=prob_mut)
             if mut[0]:
-                posiciones = [x for x in range(0, 30)]
-                probMutacion = [1/30 for x in range(0, 30)]
+                posiciones = [x for x in range(0, genes)]
+                probMutacion = [1/genes for x in range(0, genes)]
                 # Devuelve ndarray de 1 elemento
                 posicionMutacion = np.random.choice(posiciones, size=1, p=probMutacion)
                 posicionMutacion = posicionMutacion[0]
@@ -29,20 +33,30 @@ def mutacion(hijos_bin, prob_mutacion):
             hijos_mutados.append(hijo)
         return hijos_mutados
 
-def funcionObjetivo(poblacion_decimal, coeficiente):
-    colObjetivo = []
+def funcionObjetivo(poblacion_binaria, coeficiente):
+    poblacion = convertirPoblacion(poblacion_binaria, False)
+    funObjetivo = []
     # El nombre cromosoma es por semántica, en realidad va a trabajar con cada valor decimal
-    for cromosoma in poblacion_decimal:
-        colObjetivo.append((int(cromosoma)/int(coeficiente))**2)
-    # convertir lista en numpy arrray (para operaciones matemáticas)
-    npColObjetivo = np.array(colObjetivo)
-    return npColObjetivo    
+    for cromosoma in poblacion:
+        funObjetivo.append((int(cromosoma)/int(coeficiente))**2)
+    # convertir lista en numpy arrray (para operaciones matemáticas))
+    return funObjetivo    
 
-def generarDataFrame(pob_dec, pob_bin, coeficiente):
+def funcionFitness(poblacion_binaria, coeficiente):
+    fitness = []
+    funObjetivo = funcionObjetivo(poblacion_binaria, coeficiente)
+    # El nombre cromosoma es por semántica, en realidad va a trabajar con cada valor decimal
+    for objetivo in funObjetivo:
+        fitness.append((objetivo/sum(funObjetivo)))
+    # convertir lista en numpy arrray (para operaciones matemáticas)
+    return fitness
+
+def generarDataFrame(pob_bin, coeficiente):
+    pob_dec = convertirPoblacion(pob_bin, False)
     data = {'Decimales': pob_dec, 'Binarios': pob_bin, 
-            'FuncionObjetivo':funcionObjetivo(pob_dec,coeficiente)}
+            'FuncionObjetivo':np.array(funcionObjetivo(pob_bin,coeficiente))}
     dataFrame = pd.DataFrame(data)
-    dataFrame['Fitness'] = dataFrame['FuncionObjetivo'] / dataFrame['FuncionObjetivo'].sum()
+    dataFrame['Fitness'] = np.array(funcionFitness(pob_bin, coeficiente))
     return dataFrame
 
 def generarEstadisticas(dataFrame):
@@ -52,20 +66,23 @@ def generarEstadisticas(dataFrame):
     dataFrame_stats = pd.DataFrame(stats, index = ['Función objetivo', 'Fitness'])
     return dataFrame_stats
 
-def ruleta(dataFrame, cantidad_poblacion):  # pasar marco de datos
+def ruleta(pob_bin, coeficiente):  # pasar marco de datos
     # Asigna probabilidad basada en el fitness
-    probabilidades = np.array(dataFrame['Fitness'])
-    cromosomas = np.array(dataFrame['Binarios'])
+    cantidad_poblacion = len(pob_bin)
+    cromosomas = np.array(pob_bin)
+    probabilidades = np.array(funcionFitness(pob_bin, coeficiente))
     np.random.seed()
     salida = np.random.choice(cromosomas, size=int(cantidad_poblacion), p=probabilidades)
+    salida = salida.tolist()
     return salida
 
-def torneo(dataFrame):
+def torneo(poblacion_binaria, coeficiente):
     salida = []
-    fitness = np.array(dataFrame['Fitness'])
-    cromosomas = np.array(dataFrame['Binarios'])
-    for i in range(0, 10):
-        posiblesCantidades = [x for x in range(1, 11)]
+    fitness = np.array(funcionFitness(poblacion_binaria, coeficiente))
+    cantidad_poblacion = len(poblacion_binaria)
+    poblacion_binaria = np.array(poblacion_binaria)
+    for i in range(0, cantidad_poblacion):
+        posiblesCantidades = [x for x in range(1, (cantidad_poblacion+1))]
         np.random.seed()
         cantidadMiembrosTorneo = np.random.choice(
             posiblesCantidades, size=1)
@@ -73,53 +90,50 @@ def torneo(dataFrame):
         miembrosTorneo = np.random.choice(fitness, size=cantidadMiembrosTorneo[0], replace=False)
         ganador = np.amax(miembrosTorneo)
         indiceGanador = np.where(fitness == ganador)  # retorna ndarray
-        cromosomaGanador = cromosomas[indiceGanador[0][0]]
+        cromosomaGanador = poblacion_binaria[indiceGanador[0][0]]
         salida.append(cromosomaGanador)
     return salida
 
-def elitismo(dataFrame, cantidad=2):
-    fitness = np.array(dataFrame['Fitness'])
-    cromosomas = np.array(dataFrame['Binarios'])
+def elitismo(poblacion_binaria, cantidad, coeficiente):
+    fitness = []
+    fitness = funcionFitness(poblacion_binaria, coeficiente)
     elites = []
     for i in range(0, cantidad):
         # busca cual es cromosoma con mayor fitness
-        ganador = np.amax(fitness)
-        indiceGanador = np.where(fitness == ganador)
-        cromosomaGanador = cromosomas[indiceGanador[0][0]]
+        ganador = max(fitness)
+        indiceGanador = fitness.index(ganador)
+        cromosomaGanador = poblacion_binaria[indiceGanador]
         # agrega el cromosoma a la lista de elites y lo elimina de la lista de cromosomas para buscar el siguiente
         elites.append(cromosomaGanador)
-        fitness = np.delete(fitness, indiceGanador[0][0])
-        cromosomas = np.delete(cromosomas, indiceGanador[0][0])
-    return elites
+        fitness.remove(ganador)
+        poblacion_binaria.remove(cromosomaGanador)
+    return [elites, poblacion_binaria]
 
-def crossover(padres, prob_corssover):  # Pasar ndarray cromosomas padres
+def crossover(padres_binarios, prob_corssover):  # Pasar ndarray cromosomas padres
     hijos = []
-    for i in range(0, 10, 2):
+    cantidad_poblacion = len(padres_binarios)
+    genes = len(padres_binarios[0])
+    padres_binarios = np.array(padres_binarios)
+    for i in range(0, cantidad_poblacion, 2):
         opciones = [True, False]
         np.random.seed()
         # Probabilidades de cada opción
         prob_cross = np.array([prob_corssover, (1-prob_corssover)])
         cross = np.random.choice(opciones, size=1, p=prob_cross)
         if cross[0]:
-            posiciones = [x for x in range(0, 30)]
-            probCorte = [1/30 for x in range(0, 30)]
+            posiciones = [x for x in range(0, genes)]
+            probCorte = [(1/genes) for x in range(0, genes)]
             # Devuelve ndarray de 1 elemento
             corte = np.random.choice(posiciones, size=1, p=probCorte)
             posicionCorte = corte[0]
-            primerTiraGenesPadre1 = padres[i][0:posicionCorte]
-            segundaTiraGenesPadre1 = padres[i][posicionCorte:30]
-            primerTiraGenesPadre2 = padres[i+1][0:posicionCorte]
-            segundaTiraGenesPadre2 = padres[i+1][posicionCorte:30]
+            primerTiraGenesPadre1 = padres_binarios[i][0:posicionCorte]
+            segundaTiraGenesPadre1 = padres_binarios[i][posicionCorte:genes]
+            primerTiraGenesPadre2 = padres_binarios[i+1][0:posicionCorte]
+            segundaTiraGenesPadre2 = padres_binarios[i+1][posicionCorte:genes]
             hijos.append(primerTiraGenesPadre1 + segundaTiraGenesPadre2)  # Hijo 1
             hijos.append(primerTiraGenesPadre2 + segundaTiraGenesPadre1)  # Hijo 2
         else:
-            hijos.append(padres[i])
-            hijos.append(padres[i+1])
+            hijos.append(padres_binarios[i])
+            hijos.append(padres_binarios[i+1])
     return hijos
 
-def convertirPoblacionBin(pob_dec):
-    pob_bin = []
-    for decimal in pob_dec:
-        # convirtiendo cada número decimal en binario de 8 dígitos.
-        pob_bin.append(format(decimal,'030b'))
-    return pob_bin

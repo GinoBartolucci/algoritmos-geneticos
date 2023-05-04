@@ -22,16 +22,17 @@ print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
 for i in range(0, CICLOS):
     # Seleccion
     seleccion = f.ruleta(poblacion_binarios, COEF)
-    #print('\nRULETA: ')
+    # Elitismo
+    #print('\nTORNEO: ')
     #print('\n'.join(map(str, seleccion)))
+    elitismo = f.elitismo(seleccion,2, COEF)
+    #print('\nELITISMO: ')
+    #print('\n'.join(map(str, elitismo)))
     # Crossover
-    crossover = f.crossover(seleccion, PROB_CROSSOVER)
-    #print('\nCROSSOVER: ')
-    #print('\n'.join(map(str, crossover)))
+    crossover = f.crossover(elitismo[1], PROB_CROSSOVER)
     # Mutacion
-    poblacion_binarios = f.mutacion(crossover, PROB_MUTACION)
-    #print('\nMUTACION: ')
-    #print('\n'.join(map(str, mutantes)))
+    mutantes = f.mutacion(crossover, PROB_MUTACION)
+    poblacion_binarios = elitismo[0] + mutantes
     if(i+1 == CICLOS):
         print('-------------------------------------------------------------------------\nCICLO: ', i+1)
         marcoDeDatos = f.generarDataFrame(poblacion_binarios, COEF)
@@ -40,5 +41,3 @@ for i in range(0, CICLOS):
 
 print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
-    
-

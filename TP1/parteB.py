@@ -21,8 +21,8 @@ print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
 for i in range(0, CICLOS):
     # Seleccion
-    seleccion = f.ruleta(poblacion_binarios, COEF)
-    #print('\nRULETA: ')
+    seleccion = f.torneo(poblacion_binarios, COEF)
+    #print('\nTORNEO: ')
     #print('\n'.join(map(str, seleccion)))
     # Crossover
     crossover = f.crossover(seleccion, PROB_CROSSOVER)
@@ -40,5 +40,3 @@ for i in range(0, CICLOS):
 
 print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
-    
-
