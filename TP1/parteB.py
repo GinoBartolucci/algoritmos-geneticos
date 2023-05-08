@@ -20,23 +20,12 @@ print('CICLO: 0')
 print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
 for i in range(0, CICLOS):
-    # Seleccion
-    seleccion = f.torneo(poblacion_binarios, COEF)
-    #print('\nTORNEO: ')
-    #print('\n'.join(map(str, seleccion)))
-    # Crossover
-    crossover = f.crossover(seleccion, PROB_CROSSOVER)
-    #print('\nCROSSOVER: ')
-    #print('\n'.join(map(str, crossover)))
-    # Mutacion
-    poblacion_binarios = f.mutacion(crossover, PROB_MUTACION)
-    #print('\nMUTACION: ')
-    #print('\n'.join(map(str, mutantes)))
-    if(i+1 == CICLOS):
-        print('-------------------------------------------------------------------------\nCICLO: ', i+1)
-        marcoDeDatos = f.generarDataFrame(poblacion_binarios, COEF)
-        marcoDeDatos_stats = f.generarEstadisticas(marcoDeDatos)
-    #print('\n TABLA DE DATOS: \n',marcoDeDatos)
+    binarios_torneo = f.torneo(poblacion_binarios, COEF)
+    binarios_crossover = f.crossover(binarios_torneo, PROB_CROSSOVER)
+    poblacion_binarios = f.mutacion(binarios_crossover, PROB_MUTACION)
 
+print('-------------------------------------------------------------------------\nCICLO: ', CICLOS)
+marcoDeDatos = f.generarDataFrame(poblacion_binarios, COEF)
+marcoDeDatos_stats = f.generarEstadisticas(marcoDeDatos)
 print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)

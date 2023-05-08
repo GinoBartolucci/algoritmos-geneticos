@@ -33,21 +33,19 @@ def mutacion(hijos_binarios, prob_mutacion):
             hijos_mutados.append(hijo)
         return hijos_mutados
 
-def funcionObjetivo(poblacion_binaria, coeficiente):
-    poblacion = convertirPoblacion(poblacion_binaria, False)
-    funObjetivo = []
-    # El nombre cromosoma es por semántica, en realidad va a trabajar con cada valor decimal
+def funcionObjetivo(poblacion_binarios, coeficiente):
+    poblacion = convertirPoblacion(poblacion_binarios, False)
+    fun_objetivo = []
     for cromosoma in poblacion:
-        funObjetivo.append((int(cromosoma)/int(coeficiente))**2)
+        fun_objetivo.append((int(cromosoma)/int(coeficiente))**2)
     # convertir lista en numpy arrray (para operaciones matemáticas))
-    return funObjetivo    
+    return fun_objetivo    
 
-def funcionFitness(poblacion_binaria, coeficiente):
+def funcionFitness(poblacion_binarios, coeficiente):
     fitness = []
-    funObjetivo = funcionObjetivo(poblacion_binaria, coeficiente)
-    # El nombre cromosoma es por semántica, en realidad va a trabajar con cada valor decimal
-    for objetivo in funObjetivo:
-        fitness.append((objetivo/sum(funObjetivo)))
+    fun_objetivo = funcionObjetivo(poblacion_binarios, coeficiente)
+    for objetivo in fun_objetivo:
+        fitness.append((objetivo/sum(fun_objetivo)))
     # convertir lista en numpy arrray (para operaciones matemáticas)
     return fitness
 
@@ -55,65 +53,64 @@ def generarDataFrame(pob_bin, coeficiente):
     pob_dec = convertirPoblacion(pob_bin, False)
     data = {'Decimales': pob_dec, 'Binarios': pob_bin, 
             'FuncionObjetivo':np.array(funcionObjetivo(pob_bin,coeficiente))}
-    dataFrame = pd.DataFrame(data)
-    dataFrame['Fitness'] = np.array(funcionFitness(pob_bin, coeficiente))
-    return dataFrame
+    data_frame = pd.DataFrame(data)
+    data_frame['Fitness'] = np.array(funcionFitness(pob_bin, coeficiente))
+    return data_frame
 
-def generarEstadisticas(dataFrame):
-    stats = {'Suma':[ dataFrame['FuncionObjetivo'].sum(), dataFrame['Fitness'].sum() ], 
-              'Promedio': [ dataFrame['FuncionObjetivo'].mean(), dataFrame['Fitness'].mean() ], 
-              'Maximo': [ dataFrame['FuncionObjetivo'].max(), dataFrame['Fitness'].max() ]}
-    dataFrame_stats = pd.DataFrame(stats, index = ['Función objetivo', 'Fitness'])
-    return dataFrame_stats
+def generarEstadisticas(data_frame):
+    stats = {'Suma':[ data_frame['FuncionObjetivo'].sum(), data_frame['Fitness'].sum() ], 
+              'Promedio': [ data_frame['FuncionObjetivo'].mean(), data_frame['Fitness'].mean() ], 
+              'Maximo': [ data_frame['FuncionObjetivo'].max(), data_frame['Fitness'].max() ]}
+    data_frame_stats = pd.DataFrame(stats, index = ['Función objetivo', 'Fitness'])
+    return data_frame_stats
 
-def ruleta(pob_bin, coeficiente):  # pasar marco de datos
+def ruleta(pob_bin, coeficiente):
     # Asigna probabilidad basada en el fitness
     cantidad_poblacion = len(pob_bin)
     cromosomas = np.array(pob_bin)
     probabilidades = np.array(funcionFitness(pob_bin, coeficiente))
     np.random.seed()
-    salida = np.random.choice(cromosomas, size=int(cantidad_poblacion), p=probabilidades)
-    salida = salida.tolist()
-    return salida
+    binarios_ruleta = np.random.choice(cromosomas, size=int(cantidad_poblacion), p=probabilidades)
+    binarios_ruleta = binarios_ruleta.tolist()
+    return binarios_ruleta
 
-def torneo(poblacion_binaria, coeficiente):
-    salida = []
-    fitness = np.array(funcionFitness(poblacion_binaria, coeficiente))
-    cantidad_poblacion = len(poblacion_binaria)
-    poblacion_binaria = np.array(poblacion_binaria)
+def torneo(poblacion_binarios, coeficiente):
+    binarios_torneo = []
+    fitness = np.array(funcionFitness(poblacion_binarios, coeficiente))
+    cantidad_poblacion = len(poblacion_binarios)
+    poblacion_binarios = np.array(poblacion_binarios)
     for i in range(0, cantidad_poblacion):
         posiblesCantidades = [x for x in range(1, (cantidad_poblacion+1))]
         np.random.seed()
-        cantidadMiembrosTorneo = np.random.choice(
-            posiblesCantidades, size=1)
+        cantidadMiembrosTorneo = np.random.choice(posiblesCantidades, size=1)
         # Trabaja directamente con los fitness de los cromósomas
         miembrosTorneo = np.random.choice(fitness, size=cantidadMiembrosTorneo[0], replace=False)
         ganador = np.amax(miembrosTorneo)
         indiceGanador = np.where(fitness == ganador)  # retorna ndarray
-        cromosomaGanador = poblacion_binaria[indiceGanador[0][0]]
-        salida.append(cromosomaGanador)
-    return salida
+        cromosomaGanador = poblacion_binarios[indiceGanador[0][0]]
+        binarios_torneo.append(cromosomaGanador)
+    return binarios_torneo
 
-def elitismo(poblacion_binaria, cantidad, coeficiente):
-    fitness = []
-    fitness = funcionFitness(poblacion_binaria, coeficiente)
+def elitismo(poblacion_binarios, cantidad, coeficiente):
+    fitness = funcionFitness(poblacion_binarios, coeficiente)
+    no_elites = poblacion_binarios
     elites = []
     for i in range(0, cantidad):
         # busca cual es cromosoma con mayor fitness
         ganador = max(fitness)
         indiceGanador = fitness.index(ganador)
-        cromosomaGanador = poblacion_binaria[indiceGanador]
+        cromosomaGanador = no_elites[indiceGanador]
         # agrega el cromosoma a la lista de elites y lo elimina de la lista de cromosomas para buscar el siguiente
         elites.append(cromosomaGanador)
         fitness.remove(ganador)
-        poblacion_binaria.remove(cromosomaGanador)
-    return [elites, poblacion_binaria]
+        no_elites.remove(cromosomaGanador)
+    return [elites, no_elites]
 
-def crossover(padres_binarios, prob_corssover):  # Pasar ndarray cromosomas padres
-    hijos = []
-    cantidad_poblacion = len(padres_binarios)
-    genes = len(padres_binarios[0])
-    padres_binarios = np.array(padres_binarios)
+def crossover(poblacion_binarios, prob_corssover):  # Pasar ndarray cromosomas padres
+    hijos_crossover = []
+    cantidad_poblacion = len(poblacion_binarios)
+    genes = len(poblacion_binarios[0])
+    poblacion_binarios = np.array(poblacion_binarios)
     for i in range(0, cantidad_poblacion, 2):
         opciones = [True, False]
         np.random.seed()
@@ -126,14 +123,14 @@ def crossover(padres_binarios, prob_corssover):  # Pasar ndarray cromosomas padr
             # Devuelve ndarray de 1 elemento
             corte = np.random.choice(posiciones, size=1, p=probCorte)
             posicionCorte = corte[0]
-            primerTiraGenesPadre1 = padres_binarios[i][0:posicionCorte]
-            segundaTiraGenesPadre1 = padres_binarios[i][posicionCorte:genes]
-            primerTiraGenesPadre2 = padres_binarios[i+1][0:posicionCorte]
-            segundaTiraGenesPadre2 = padres_binarios[i+1][posicionCorte:genes]
-            hijos.append(primerTiraGenesPadre1 + segundaTiraGenesPadre2)  # Hijo 1
-            hijos.append(primerTiraGenesPadre2 + segundaTiraGenesPadre1)  # Hijo 2
+            primerTiraGenesPadre1 = poblacion_binarios[i][0:posicionCorte]
+            segundaTiraGenesPadre1 = poblacion_binarios[i][posicionCorte:genes]
+            primerTiraGenesPadre2 = poblacion_binarios[i+1][0:posicionCorte]
+            segundaTiraGenesPadre2 = poblacion_binarios[i+1][posicionCorte:genes]
+            hijos_crossover.append(primerTiraGenesPadre1 + segundaTiraGenesPadre2)  # Hijo 1
+            hijos_crossover.append(primerTiraGenesPadre2 + segundaTiraGenesPadre1)  # Hijo 2
         else:
-            hijos.append(padres_binarios[i])
-            hijos.append(padres_binarios[i+1])
-    return hijos
+            hijos_crossover.append(poblacion_binarios[i])
+            hijos_crossover.append(poblacion_binarios[i+1])
+    return hijos_crossover
 
