@@ -106,7 +106,7 @@ def elitismo(poblacion_binarios, cantidad, coeficiente):
         no_elites.remove(cromosomaGanador)
     return [elites, no_elites]
 
-def crossover(poblacion_binarios, prob_corssover):  # Pasar ndarray cromosomas padres
+def crossover(poblacion_binarios, prob_corssover):
     hijos_crossover = []
     cantidad_poblacion = len(poblacion_binarios)
     genes = len(poblacion_binarios[0])
