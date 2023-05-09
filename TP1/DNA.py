@@ -77,6 +77,29 @@ class DNA:
         return info,info_decimal,info_fitness,info_objetivo
     
     
+    def cruzar_poblacion(self):
+        """
+            -> list:Cromosoma
+        """
+        hijos = []
+        # Seleccionamos los cromosomas a cruzar
+        for posicion in range(0,len(self.poblacion),2):
+            cromosoma_1 = self.poblacion[posicion]
+            cromosoma_2 = self.poblacion[posicion+1]
+            # Cruzamos los cromosomas
+            hijo1,hijo2 = cromosoma_1.cruzar(cromosoma_2)
+            hijos.append(hijo1)
+            hijos.append(hijo2)
+    
+        return hijos
+    
+            # Retornamos los cromosomas cruzados
+
+        # Cruzamos los cromosomas
+        # cromosomas_cruzados = self.cruzar(cromosomas_seleccionados)
+        # Retornamos los cromosomas cruzados
+        # return cromosomas_cruzados
+
     # def get_info_poblacion(self):
     #     """
     #     {

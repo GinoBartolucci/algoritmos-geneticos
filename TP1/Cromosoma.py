@@ -29,6 +29,12 @@ class Cromosoma:
         self.fitness = fitness 
         self.objetivo = None
         self.hijos = []
+        self.decimalToBinary()
+
+    def decimalToBinary(self):
+        "Transforma el numero decimal a binario"
+        if self.decimal and len(self.genes) == 0:
+            return bin(self.decimal)[2:]
 
     def genesToDecimal(self):
         "Transforma la lista de genes (numero binario) a decimal"
@@ -62,11 +68,13 @@ class Cromosoma:
         "Crea los hijos a partir de los genes"
         self.hijos.append(Cromosoma(genes))
 
-    def crossover(self,otro_cromosoma):
+    def cruzar(self,otro_cromosoma):
         "Realiza el crossover entre dos cromosomas"
         seRealizoCrossOver,genes_hijo1,genes__hijo2= Crossover.corte(self,otro_cromosoma)
-        hijo1 = Cromosoma(genes_hijo1).mutar()
-        hijo2 = Cromosoma(genes__hijo2).mutar()
+        hijo1 = Cromosoma(genes_hijo1)
+        hijo2 = Cromosoma(genes__hijo2) 
+        hijo1.mutar()
+        hijo2.mutar()
         # hijo1.mutar()
         # hijo2.mutar()
 
@@ -78,7 +86,8 @@ class Cromosoma:
     def mutar(self):
         "Mutacion de un gen aleatorio"
         if random.random() < Cromosoma.getProbMutacion():
-            posicion_random = random.int(0,len(self.genes))
-            self.genes[posicion_random] = not self.genes[posicion_random]
+            posicion_random = random.randint(0,len(self.genes)-1)
+            self.genes[posicion_random] = int(not self.genes[posicion_random])
+
 
 
