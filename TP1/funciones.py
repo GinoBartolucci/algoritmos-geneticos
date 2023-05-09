@@ -33,7 +33,7 @@ def mutacion(hijos_binarios, prob_mutacion):
             hijos_mutados.append(hijo)
         return hijos_mutados
 
-def funcionObjetivo(poblacion_binarios, coeficiente):
+def funcionObjetivo(poblacion_binarios, coeficiente): #El coeficiente debería ser una constante en todo el programa
     poblacion = convertirPoblacion(poblacion_binarios, False)
     fun_objetivo = []
     for cromosoma in poblacion:
@@ -41,9 +41,9 @@ def funcionObjetivo(poblacion_binarios, coeficiente):
     # convertir lista en numpy arrray (para operaciones matemáticas))
     return fun_objetivo    
 
-def funcionFitness(poblacion_binarios, coeficiente):
+def funcionFitness(poblacion_binarios, coeficiente): #TODO esto se puede reemplazar por  marcoDeDatos['Fitness']
     fitness = []
-    fun_objetivo = funcionObjetivo(poblacion_binarios, coeficiente)
+    fun_objetivo = funcionObjetivo(poblacion_binarios, coeficiente)# A funcion objetivo pasale la población decimal sino los números que tira estan mal
     for objetivo in fun_objetivo:
         fitness.append((objetivo/sum(fun_objetivo)))
     # convertir lista en numpy arrray (para operaciones matemáticas)
@@ -93,7 +93,7 @@ def torneo(poblacion_binarios, coeficiente):
 
 def elitismo(poblacion_binarios, cantidad, coeficiente):
     fitness = funcionFitness(poblacion_binarios, coeficiente)
-    no_elites = poblacion_binarios
+    no_elites = poblacion_binarios #usar .copy al final de esto osea poblacion_binarios.copy(). Porque en python solo se puede pasar parametros por referencia y modificas población binarios aunque trabajes en no_elites. Vas a ver que cada vez tiene menos elementos hasta que tire error.
     elites = []
     for i in range(0, cantidad):
         # busca cual es cromosoma con mayor fitness
