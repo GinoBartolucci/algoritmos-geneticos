@@ -4,7 +4,7 @@ Este repositorio contiene los trabajos practicos de la materia Algoritmos Geneti
 ### Integrantes
 * [Francisco Mendiburu](https://github.com/MendiburuFrancisco)
 * [Gino Bartolluci](https://github.com/GinoBartolucci)
-* [Joaquin ..]()
+* [Joaquin Betes](https://github.com/JoaquinBetes)
 
 
 Este contiene los siguientes trabajos practicos:
