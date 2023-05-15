@@ -37,16 +37,14 @@ def funcionObjetivo(poblacion_binarios, coeficiente): #El coeficiente debería s
     poblacion = convertirPoblacion(poblacion_binarios, False)
     fun_objetivo = []
     for cromosoma in poblacion:
-        fun_objetivo.append((int(cromosoma)/int(coeficiente))**2)
-    # convertir lista en numpy arrray (para operaciones matemáticas))
-    return fun_objetivo    
+        fun_objetivo.append((cromosoma/coeficiente)**2)
+    return fun_objetivo
 
-def funcionFitness(poblacion_binarios, coeficiente): #TODO esto se puede reemplazar por  marcoDeDatos['Fitness']
+def funcionFitness(poblacion_binarios, coeficiente):
     fitness = []
-    fun_objetivo = funcionObjetivo(poblacion_binarios, coeficiente)# A funcion objetivo pasale la población decimal sino los números que tira estan mal
+    fun_objetivo = funcionObjetivo(poblacion_binarios, coeficiente)
     for objetivo in fun_objetivo:
         fitness.append((objetivo/sum(fun_objetivo)))
-    # convertir lista en numpy arrray (para operaciones matemáticas)
     return fitness
 
 def generarDataFrame(pob_bin, coeficiente):
@@ -93,18 +91,14 @@ def torneo(poblacion_binarios, coeficiente):
 
 def elitismo(poblacion_binarios, cantidad, coeficiente):
     fitness = funcionFitness(poblacion_binarios, coeficiente)
-    no_elites = poblacion_binarios #usar .copy al final de esto osea poblacion_binarios.copy(). Porque en python solo se puede pasar parametros por referencia y modificas población binarios aunque trabajes en no_elites. Vas a ver que cada vez tiene menos elementos hasta que tire error.
     elites = []
     for i in range(0, cantidad):
-        # busca cual es cromosoma con mayor fitness
         ganador = max(fitness)
         indiceGanador = fitness.index(ganador)
-        cromosomaGanador = no_elites[indiceGanador]
-        # agrega el cromosoma a la lista de elites y lo elimina de la lista de cromosomas para buscar el siguiente
+        cromosomaGanador = poblacion_binarios[indiceGanador]
         elites.append(cromosomaGanador)
         fitness.remove(ganador)
-        no_elites.remove(cromosomaGanador)
-    return [elites, no_elites]
+    return elites
 
 def crossover(poblacion_binarios, prob_corssover):
     hijos_crossover = []
