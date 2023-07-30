@@ -20,6 +20,9 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
+# GameOver
+game_over = False
+
 # Inicializar pygame
 pygame.init()
 
@@ -27,6 +30,10 @@ pygame.init()
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Breakout")
 
+# Timer
+font = pygame.font.Font(None, 36)
+start_time = pygame.time.get_ticks()
+game_over_time = 0  # Variable para almacenar el tiempo en el que ocurre el "game over"
 clock = pygame.time.Clock()
 
 # Clase para representar la paleta
@@ -95,10 +102,8 @@ class Ball(pygame.sprite.Sprite):
         if self.rect.y <= 0:
             self.speed_y *= -1
         elif self.rect.y >= WINDOW_HEIGHT - 10:
-            # Reiniciar la posición de la pelota si se pierde
-            self.rect.x = (WINDOW_WIDTH - 10) // 2
-            self.rect.y = (WINDOW_HEIGHT - 10) // 2
-            self.speed_y = -3
+            self.speed_y = 0
+            self.speed_x = 0
 
 # Inicializar paleta, bloques y pelota
 all_sprites = pygame.sprite.Group()
@@ -111,6 +116,11 @@ all_sprites.add(ball)
 
 # Variable para llevar la puntuación
 score = 0
+
+# Timer
+font = pygame.font.Font(None, 36)
+start_time = pygame.time.get_ticks()
+clock = pygame.time.Clock()
 
 # Fuente para el contador
 font = pygame.font.Font(None, 36)
@@ -142,7 +152,21 @@ while running:
     # Mostrar el contador en la ventana
     score_text = font.render("Score: " + str(score), True, WHITE)
     window.blit(score_text, (10, 10))
+    
+    if ball.speed_y == 0:
+        game_over = True
+    
+    # Actualizar timer solo si el juego no ha finalizado
+    if not game_over:
+        elapsed_time = (pygame.time.get_ticks() - start_time) / 1000.0  # Convertir a segundos con decimales
+        elapsed_time_str = "{:.2f}".format(elapsed_time)  # Formatear el tiempo con dos decimales
+    else:
+        # Si es "game over", mostrar el tiempo fijo en que ocurrió
+        elapsed_time_str = "{:.2f}".format(elapsed_time)
 
+    timer_text = font.render("Time: " + elapsed_time_str + " s", True, WHITE)
+    window.blit(timer_text, (WINDOW_WIDTH - 150, 10))
+    
     pygame.display.flip()
 
     # Controlar la velocidad de actualización del juego
