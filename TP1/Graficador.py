@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from IPython.display import Image, display
+import pandas as pd
+
 
 # left_coordinates=[1,2,3,4,5]
 # heights=[10,20,30,15,40]
@@ -26,6 +28,8 @@ def crearTabla(encabezado, filas):
 
     # Saco los ejes
     plt.axis('off')
+
+
       
 def crearGraficoFuncion(funcion,dominio,puntos):
     x = np.linspace(dominio[0], dominio[1])
@@ -37,7 +41,30 @@ def crearGraficoFuncion(funcion,dominio,puntos):
 
     plt.plot(puntos[0],puntos[1], 'ro')    
     
+def hacerGrafico(estadisticas, iteracion):
+    estadisticas["Iteración"]=[x for x in range(1,iteracion+1)]
+    plt.figure(figsize=(18,18))
+    plt.plot(estadisticas["Iteración"], estadisticas["Máximo"], 'b.-', label="Máximo")
+    plt.plot(estadisticas["Iteración"], estadisticas["Mínimo"], 'r.-', label="Mínimo")
+    plt.plot(estadisticas["Iteración"], estadisticas["Promedio"], 'g.-', label="Promedio")
+    plt.legend()
+    plt.title("Gráfica iteración: " + str(iteracion))
+    plt.xticks(estadisticas["Iteración"][::1])
+    plt.yticks(np.arange(0, 1.01, step=0.025))
+    plt.xlabel("Iteraciones")
+    plt.ylabel("F. Objetivo")
+    plt.show()
 
+
+def hacerTabla(estadisticas,cantIteraciones):
+        cromosomas_maxs, maximos, minimos, promedios = estadisticas["CromosomaMáximo"], estadisticas["Máximo"], estadisticas["Mínimo"], estadisticas["Promedio"]
+        iteraciones = [x for x in range(1,cantIteraciones+1)]
+        data = {'Iteracion': iteraciones, 'CromosomaMax': cromosomas_maxs, 'Maximo': maximos, 
+            'Minimo':minimos, 'Promedio':promedios}
+        data_frame = pd.DataFrame(data)
+        data_frame.style.hide(axis='index')
+        # data_frame = data_frame.format(precision=10)
+        return data_frame
 
 def crearPieChart(encabezado, filas):
     """ 

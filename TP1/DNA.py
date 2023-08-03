@@ -69,7 +69,7 @@ class DNA:
         for cromosoma in self.poblacion:
             cromosoma_info = cromosoma.__list__()
             
-            info.append(cromosoma_info)
+            info.append(cromosoma.getGenesInStr())
             info_decimal.append(cromosoma.decimal)
             info_fitness.append(cromosoma.fitness)
             info_objetivo.append(cromosoma.objetivo)

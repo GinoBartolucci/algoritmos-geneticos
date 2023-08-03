@@ -21,14 +21,15 @@ class Crossover:
 
     @staticmethod    
     def corte(cromosoma1,cromosoma2) -> list:
-        print("Probabilidad de crossover")
+        # print("Probabilidad de crossover")
         if random.random() < cromosoma1.getProbCrossover():
-            print("Se realiza crossover")
+            # print("#### CROSSOVER ####")
             punto_corte = random.randint(0,len(cromosoma1.genes))
             genes_hijo1 =  cromosoma1.genes[:punto_corte] + cromosoma2.genes[punto_corte:] 
             genes_hijo2 =  cromosoma2.genes[:punto_corte] + cromosoma1.genes[punto_corte:] 
-            print("Genes hijo 1",genes_hijo1)
-            print("Genes hijo 2",genes_hijo2)
+            # print("Genes hijo 1 e hijo2 \n%s" % genes_hijo1)
+            # print(genes_hijo2)
+            # print("#### END ####")
 
             return True,genes_hijo1,genes_hijo2
         else:

@@ -1,18 +1,19 @@
 import random
+import numpy as np
 from Crossover import Crossover
 
 class Cromosoma:
 
-    prob_crossover = 0.75
+    prob_crossover = 0.75 
     prob_mut = 0.05
 
     @staticmethod
     def setProbCrossover(probabilidad_crossover):
-        probabilidad_crossover = probabilidad_crossover
+        Cromosoma.prob_crossover = probabilidad_crossover
 
     @staticmethod
     def setProbMutacion(probabilidad_mutacion):
-        probabilidad_mutacion = probabilidad_mutacion
+        Cromosoma.prob_mut = probabilidad_mutacion
     
     @staticmethod
     def getProbCrossover():
@@ -21,6 +22,7 @@ class Cromosoma:
     @staticmethod
     def getProbMutacion():
         return Cromosoma.prob_mut
+    
 
    
     def __init__(self,genes,fitness=None) -> None:
@@ -35,6 +37,11 @@ class Cromosoma:
         "Transforma el numero decimal a binario"
         if self.decimal and len(self.genes) == 0:
             return bin(self.decimal)[2:]
+    
+    def getGenesInStr(self):
+        "Devuelve la lista de genes como string"
+        return ''.join(str(gen) for gen in self.genes)
+        # return self.genes
 
     def genesToDecimal(self):
         "Transforma la lista de genes (numero binario) a decimal"
@@ -83,11 +90,31 @@ class Cromosoma:
             # self.addChildrens(hijo1,hijo2)
         return hijo1,hijo2
         
+    # def mutar(self):
+    #     "Mutacion de un gen aleatorio"
+    #     if random.random() < Cromosoma.getProbMutacion():
+    #         posicion_random = random.randint(0,len(self.genes)-1)
+    #         # print("@@@@ MUTACION @@@@")
+    #         # print("AyD: \n%s" % self.genes)
+    #         self.genes[posicion_random] = int(not self.genes[posicion_random])
+    #         # print("%s" % self.genes)
+    #         # print("@@@@ /END @@@@")
+
     def mutar(self):
-        "Mutacion de un gen aleatorio"
-        if random.random() < Cromosoma.getProbMutacion():
-            posicion_random = random.randint(0,len(self.genes)-1)
-            self.genes[posicion_random] = int(not self.genes[posicion_random])
-
-
+        genes = len(self.genes)
+        opciones = [True, False]
+        np.random.seed()
+        # Probabilidades de cada opción
+        prob_mut = np.array([Cromosoma.getProbMutacion(), (1-Cromosoma.getProbMutacion())])
+        debeMutar = np.random.choice(opciones, size=1, p=prob_mut)[0]
+        if debeMutar:
+            # print("@@@@ MUTACION @@@@")
+            # print("AyD: \n%s" % self.genes)
+            posiciones = [x for x in range(0, genes)]
+            probMutacion = [1/genes for x in range(0, genes)]
+            # Devuelve ndarray de 1 elemento
+            posicionMutacion = np.random.choice(posiciones, size=1, p=probMutacion)[0]
+            self.genes[posicionMutacion] = int(not self.genes[posicionMutacion])
+            # print("%s" % self.genes)
+            # print("@@@@ /END @@@@")
 
