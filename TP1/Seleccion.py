@@ -25,8 +25,9 @@ class Seleccion:
                 np.random.seed()
                 # posicion_ruleta_random = random.randrange(start=0, stop=len(ruleta),step=1)
                 # print(posicion_ruleta_random)
-
-                return list(map(lambda iteracion: ruleta[random.randrange(start=0, stop=len(ruleta),step=1)], range(vueltas)))
+                # posicion_random = lambda x: random.randrange(start=0, stop=len(ruleta),step=1)
+                
+                return list(map(lambda iteracion: ruleta[random.randint(0,len(ruleta)-1)], range(vueltas)))
         
         ruleta = generar_ruleta(cromosomas)
         return girar_ruleta(ruleta,vueltas=vueltas)
