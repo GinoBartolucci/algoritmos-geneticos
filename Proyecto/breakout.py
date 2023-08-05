@@ -153,7 +153,7 @@ while running:
     score_text = font.render("Score: " + str(score), True, WHITE)
     window.blit(score_text, (10, 10))
     
-    if ball.speed_y == 0:
+    if ball.speed_y == 0 or score == 30:
         game_over = True
     
     # Actualizar timer solo si el juego no ha finalizado
