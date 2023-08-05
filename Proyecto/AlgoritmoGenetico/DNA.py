@@ -75,23 +75,7 @@ class DNA:
             info_objetivo.append(cromosoma.objetivo)
 
         return info,info_decimal,info_fitness,info_objetivo
-    
-    
-    # def cruzar_poblacion(self):
-    #     """
-    #         -> list:Cromosoma
-    #     """
-    #     hijos = []
-    #     # Seleccionamos los cromosomas a cruzar
-    #     for posicion in range(0,len(self.poblacion),2):
-    #         cromosoma_1 = self.poblacion[posicion]
-    #         cromosoma_2 = self.poblacion[posicion+1]
-    #         # Cruzamos los cromosomas
-    #         hijo1,hijo2 = cromosoma_1.cruzar(cromosoma_2)
-    #         hijos.append(hijo1)
-    #         hijos.append(hijo2)
-    
-    #     return hijos
+
     
     @staticmethod
     def cruzar_poblacion(poblacion):
@@ -109,45 +93,4 @@ class DNA:
             hijos.append(hijo2)
     
         return hijos
-    
-
-    # def get_info_poblacion(self):
-    #     """
-    #     {
-    #         "decimal": {
-    #             "objetivo": 0.1244,
-    #             "fitness": 0.1244
-    #             "binario": 31232131,
-
-    #             }
-
-    #         }
-    #     }
-    #     """
-    #     info = {}
-    #     for cromosoma in self.poblacion:
-    #         info[cromosoma.decimal] = {
-    #             "objetivo": cromosoma.objetivo,
-    #             "fitness": cromosoma.fitness,
-    #             "binario": cromosoma.genes
-    #         }
-    #         # info.append(cromosoma.__list__())
-    #     return info
-    
-        
-    # def func_Objetivo(self, cromosoma):
-    #     coeficiente = 2**30 -1
-    #     return (cromosoma/coeficiente)**2
-    
-    # def func_Fitness(self, cromosomas):
-    #     objetivos = []
-    #     for cromosoma in cromosomas:
-    #         objetivo = self.func_Objetivo(cromosoma)
-    #         objetivos.append(objetivo)
-    #     suma_objetivos = sum(objetivos)
-    #     objetivos_calculado = list(map(lambda x: x/suma_objetivos, objetivos))
-        
-    #     return objetivos_calculado
-
-    
 
