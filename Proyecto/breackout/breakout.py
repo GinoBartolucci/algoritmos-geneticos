@@ -90,10 +90,6 @@ class game_info():
 	def __init__(self):
 		self.reset()
 
-	def setPoints(self, points):
-		self.points = points
-		self.displayInfo()
-
 	def displayInfo(self):
 		if self.points != -1: #wining
 			score_text = font.render("Score: " + str(self.points) + "\n Vx: %.2f" % self.vel_x + "  Vy: %.2f" % self.vel_y, True, red)
@@ -173,12 +169,12 @@ class game_ball():
 		self.rect.x += self.speed_x
 		self.rect.y += self.speed_y
 
-		game_info.setPoints(self.destroyed)#Actualiza el puntaje
+		game_info.points = self.destroyed#Actualiza el puntaje
 		game_info.vel_x = self.speed_x
 		game_info.vel_y = self.speed_y
 		game_info.pos_x = self.rect.x
 		game_info.pos_y = self.rect.y
-
+		game_info.displayInfo()
 	def draw(self):
 		pygame.draw.circle(screen, red, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad)
 		pygame.draw.circle(screen, black_red, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad, 3)
@@ -189,7 +185,7 @@ class game_ball():
 		self.x = x - self.ball_rad
 		self.y = y
 		self.rect = Rect(self.x, self.y, self.ball_rad * 2, self.ball_rad * 2)
-		velx = [1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5]
+		velx = [1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3]
 		dirx = [-1, 1]
 		self.speed_x = ((random.choice(velx)**2) * random.choice(dirx))
 		#velocidad 6 = sqrt(speed_x^2 + speed_y^2)
