@@ -1,176 +1,232 @@
 import pygame
+from pygame.locals import *
 import random
+import math
 
-# Dimensiones de la ventana del juego
-WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 600
-
-# Dimensiones de la paleta y los bloques
-PADDLE_WIDTH = 100
-PADDLE_HEIGHT = 10
-BLOCK_WIDTH = 70
-BLOCK_HEIGHT = 20
-BLOCK_MARGIN = 4
-BLOCK_COLUMNS = 6
-BLOCK_ROWS = 5
-
-# Colores
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-
-# GameOver
-game_over = False
-
-# Inicializar pygame
 pygame.init()
 
-# Crear la ventana del juego
-window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("Breakout")
-
-# Timer
-font = pygame.font.Font(None, 36)
-start_time = pygame.time.get_ticks()
-game_over_time = 0  # Variable para almacenar el tiempo en el que ocurre el "game over"
+screen_width = 600
+screen_height = 600
+#define game variables
+cols = 6
+rows = 6
 clock = pygame.time.Clock()
+fps = 60
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption('Breakout')
 
-# Clase para representar la paleta
-class Paddle(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface([PADDLE_WIDTH, PADDLE_HEIGHT])
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
-        self.rect.x = (WINDOW_WIDTH - PADDLE_WIDTH) // 2
-        self.rect.y = WINDOW_HEIGHT - PADDLE_HEIGHT
-
-    def update(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.rect.x -= 5
-        if keys[pygame.K_RIGHT]:
-            self.rect.x += 5
-        if self.rect.x < 0:
-            self.rect.x = 0
-        if self.rect.x > WINDOW_WIDTH - PADDLE_WIDTH:
-            self.rect.x = WINDOW_WIDTH - PADDLE_WIDTH
-
-# Clase para representar los bloques
-class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.Surface([BLOCK_WIDTH, BLOCK_HEIGHT])
-        self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-# Función para generar los bloques
-def generate_blocks():
-    blocks = pygame.sprite.Group()
-    block_width_total = (BLOCK_WIDTH + BLOCK_MARGIN) * BLOCK_COLUMNS - BLOCK_MARGIN
-    x_offset = (WINDOW_WIDTH - block_width_total) // 2 + BLOCK_MARGIN
-    y_offset = 120
-    for row in range(BLOCK_ROWS):
-        for column in range(BLOCK_COLUMNS):
-            x = x_offset + (BLOCK_WIDTH + BLOCK_MARGIN) * column
-            y = y_offset + (BLOCK_HEIGHT + BLOCK_MARGIN) * row
-            block = Block(x, y)
-            blocks.add(block)
-    return blocks
-
-# Clase para representar la pelota
-class Ball(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface([10, 10])
-        self.image.fill(WHITE)
-        self.rect = self.image.get_rect()
-        self.rect.x = (WINDOW_WIDTH - 10) // 2
-        self.rect.y = (WINDOW_HEIGHT - 10) // 2
-        self.speed_x = random.choice([-3, 3])
-        self.speed_y = -3
-
-    def update(self):
-        self.rect.x += self.speed_x
-        self.rect.y += self.speed_y
-
-        if self.rect.x <= 0 or self.rect.x >= WINDOW_WIDTH - 10:
-            self.speed_x *= -1        
-        if self.rect.y <= 0:
-            self.speed_y *= -1
-        elif self.rect.y >= WINDOW_HEIGHT - 10:
-            self.speed_y = 0
-            self.speed_x = 0
-
-# Inicializar paleta, bloques y pelota
-all_sprites = pygame.sprite.Group()
-paddle = Paddle()
-all_sprites.add(paddle)
-blocks = generate_blocks()
-all_sprites.add(blocks)
-ball = Ball()
-all_sprites.add(ball)
-
-# Variable para llevar la puntuación
-score = 0
-
-# Timer
-font = pygame.font.Font(None, 36)
-start_time = pygame.time.get_ticks()
-clock = pygame.time.Clock()
-
-# Fuente para el contador
+#define colours
+bg = (218, 200, 170)
+red = (242, 85, 96)
+blue = (69, 160, 215)
+black_red = (220, 60, 70)
+#font
 font = pygame.font.Font(None, 36)
 
-# Ciclo principal del juego
-running = True
-while running:
+class wall():
+	def __init__(self):
+		self.width = screen_width // cols
+		self.height = 50
+		self.reset()
+
+	def create_wall(self):
+		self.blocks = []
+		for row in range(rows):
+			#reset the block row list
+			block_row = []
+			#iterate through each column in that row
+			for col in range(cols):
+				#generate x and y positions for each block and create a rectangle from that
+				block_x = col * self.width
+				block_y = row * self.height
+				block_individual = pygame.Rect(block_x, block_y, self.width, self.height)
+				#create a list at this point to store the rect and colour data
+				#append that individual block to the block row
+				block_row.append(block_individual)
+			#append the row to the full list of blocks
+			self.blocks.append(block_row)
+
+	def draw_wall(self):
+		for row in self.blocks:
+			for block in row:
+				pygame.draw.rect(screen, blue, block)
+				pygame.draw.rect(screen, bg, block, 2)
+
+	def reset(self):
+		self.create_wall()
+class paddle():
+	def __init__(self):
+		self.reset()
+
+	def move(self,left=False):
+		#reset movement direction
+		if left and self.rect.left > 0:
+			self.rect.x -= self.speed
+		elif not left and self.rect.right < screen_width:
+			self.rect.x += self.speed
+		
+	def draw(self):
+		pygame.draw.rect(screen, red, self.rect)
+		pygame.draw.rect(screen, black_red, self.rect, 3)
+
+	def reset(self):
+		#define paddle variables
+		self.height = 20
+		self.width = int(screen_width / cols)
+		self.x = int((screen_width / 2) - (self.width / 2))
+		self.y = screen_height - (self.height * 2)
+		self.speed = 8
+		self.rect = Rect(self.x, self.y, self.width, self.height)
+class game_info():
+	def __init__(self):
+		self.reset()
+
+	def displayInfo(self):
+		if self.points != -1: #wining
+			score_text = font.render("Score: " + str(self.points) + "\n Vx: %.2f" % self.vel_x + "  Vy: %.2f" % self.vel_y, True, red)
+		elif self.points == -1: #lose
+			score_text = font.render("Losse", True, red)
+		x = 0 #int((screen_width / 2))
+		y = screen_height -30 #screen_height - 200
+		screen.blit(score_text, (x, y))
+	
+	def reset(self):
+		self.points = 0
+		self.vel_x = 0
+		self.vel_y = 0
+		self.pos_x = 0
+		self.pos_y = 0
+		self.displayInfo()
+class game_ball():
+	def __init__(self, x, y):
+		self.reset(x, y)
+
+	def move(self):
+		#collision threshold
+		collision_thresh = 6
+		#start off with the assumption that the wall has been destroyed completely
+		row_count = 0
+		for row in wall.blocks:
+			item_count = 0
+			for item in row:
+				#check collision
+				if self.rect.colliderect(item):
+					#check if collision was from above
+					if abs(self.rect.bottom - item.top) < collision_thresh and self.speed_y > 0:
+						self.speed_y *= -1
+					#check if collision was from below
+					if abs(self.rect.top - item.bottom) < collision_thresh and self.speed_y < 0:
+						self.speed_y *= -1						
+					#check if collision was from left
+					if abs(self.rect.right - item.left) < collision_thresh and self.speed_x > 0:
+						self.speed_x *= -1
+					#check if collision was from right
+					if abs(self.rect.left - item.right) < collision_thresh and self.speed_x < 0:
+						self.speed_x *= -1
+					#damage the block
+					wall.blocks[row_count][item_count] = (0, 0, 0, 0)
+					self.destroyed += 1
+					self.speed_x *= 1.01
+					self.speed_y *= 1.01
+				#check if block still exists, in whcih case the wall is not destroyed
+				#if wall.blocks[row_count][item_count][0] != (0, 0, 0, 0):
+					#wall_destroyed = 0
+				#increase item counter
+				item_count += 1
+			#increase row counter
+			row_count += 1
+		
+		#check for collision with walls
+		if self.rect.left < 0 or self.rect.right > screen_width:
+			self.speed_x *= -1
+
+		#check for collision with top and bottom of the screen
+		if self.rect.top < 0:
+			self.speed_y *= -1
+		if self.rect.bottom > screen_height:
+			self.destroyed = -1 #lose
+
+		#look for collission with paddle
+		if self.rect.colliderect(player_paddle):
+			#check if colliding from the top
+			if abs(self.rect.bottom - player_paddle.rect.top) < collision_thresh and self.speed_y > 0:
+				self.speed_y *= -1
+			else:
+				self.speed_x *= -1
+
+		#mover la bocha
+		self.rect.x += self.speed_x
+		self.rect.y += self.speed_y
+
+		game_info.points = self.destroyed#Actualiza el puntaje
+		game_info.vel_x = self.speed_x
+		game_info.vel_y = self.speed_y
+		game_info.pos_x = self.rect.x
+		game_info.pos_y = self.rect.y
+		game_info.displayInfo()
+	def draw(self):
+		pygame.draw.circle(screen, red, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad)
+		pygame.draw.circle(screen, black_red, (self.rect.x + self.ball_rad, self.rect.y + self.ball_rad), self.ball_rad, 3)
+
+	def reset(self, x, y):
+		self.destroyed = 0
+		self.ball_rad = 10
+		self.x = x - self.ball_rad
+		self.y = y
+		self.rect = Rect(self.x, self.y, self.ball_rad * 2, self.ball_rad * 2)
+		velx = [1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3]
+		dirx = [-1, 1]
+		self.speed_x = ((random.choice(velx)**2) * random.choice(dirx))
+		#velocidad 6 = sqrt(speed_x^2 + speed_y^2)
+		#speed_y = sqrt(speed_x^2 + speed_y^2)
+		vely=math.sqrt(16 - abs(self.speed_x))
+		self.speed_y = -1 * vely
+		game_info.vel_x = self.speed_x
+		game_info.vel_y = self.speed_y
+
+wall = wall()
+player_paddle = paddle()
+game_info = game_info()
+ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
+
+
+def loop():	
+  run = True
+  live_ball = False
+  while run:
+    clock.tick(fps)	
+    screen.fill(bg)
+    #draw all objects
+    wall.draw_wall()
+    player_paddle.draw()
+    ball.draw()
+
+    if live_ball:
+      #Mover paddle
+      key = pygame.key.get_pressed()
+      if key[pygame.K_LEFT]:
+        player_paddle.move(left=True)
+      if key[pygame.K_RIGHT]:
+        player_paddle.move(left=False)		
+      #Coliciones
+      ball.move()	#-->Actualiza game info
+      if game_info.points == (cols * rows): #win
+        live_ball = False
+      elif game_info.points == -1: #lose
+        live_ball = False
+
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+      if event.type == pygame.QUIT:
+        run = False
+      if event.type == pygame.MOUSEBUTTONDOWN and live_ball == False: # si perde espera el click para reiniciar
+        live_ball = True
+        ball.reset(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
+        player_paddle.reset()
+        game_info.reset()
+        wall.reset()
 
-    # Actualizar la paleta, bloques y pelota
-    all_sprites.update()
+    pygame.display.update()
 
-    # Detectar colisiones con la paleta
-    if pygame.sprite.collide_rect(ball, paddle):
-        ball.speed_y *= -1
+  pygame.quit()
 
-    # Detectar colisiones con los bloques
-    collisions = pygame.sprite.spritecollide(ball, blocks, True)
-    for block in collisions:
-        score += 1
-        ball.speed_y *= -1
-
-    # Dibujar la ventana del juego
-    window.fill(BLACK)
-    all_sprites.draw(window)
-
-    # Mostrar el contador en la ventana
-    score_text = font.render("Score: " + str(score), True, WHITE)
-    window.blit(score_text, (10, 10))
-    
-    if ball.speed_y == 0 or score == 30:
-        game_over = True
-    
-    # Actualizar timer solo si el juego no ha finalizado
-    if not game_over:
-        elapsed_time = (pygame.time.get_ticks() - start_time) / 1000.0  # Convertir a segundos con decimales
-        elapsed_time_str = "{:.2f}".format(elapsed_time)  # Formatear el tiempo con dos decimales
-    else:
-        # Si es "game over", mostrar el tiempo fijo en que ocurrió
-        elapsed_time_str = "{:.2f}".format(elapsed_time)
-
-    timer_text = font.render("Time: " + elapsed_time_str + " s", True, WHITE)
-    window.blit(timer_text, (WINDOW_WIDTH - 150, 10))
-    
-    pygame.display.flip()
-
-    # Controlar la velocidad de actualización del juego
-    clock.tick(60)
-
-# Cerrar pygame
-pygame.quit()
+loop()

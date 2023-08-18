@@ -1,34 +1,31 @@
 import pygame
 from pygame.locals import *
 import random
+import neat
+import pickle
 import math
+import os
 
 pygame.init()
 
 screen_width = 600
 screen_height = 600
-
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Breakout')
-
-#define colours
-bg = (218, 200, 170)
-#block colours
-red = (242, 85, 96)
-green = (86, 174, 87)
-blue = (69, 160, 215)
-#paddle colours
-black_red = (220, 60, 70)
-#font
-font = pygame.font.Font(None, 36)
-
 #define game variables
 cols = 6
 rows = 6
 clock = pygame.time.Clock()
 fps = 60
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption('Breakout')
 
-#brick wall class
+#define colours
+bg = (218, 200, 170)
+red = (242, 85, 96)
+blue = (69, 160, 215)
+black_red = (220, 60, 70)
+#font
+font = pygame.font.Font(None, 36)
+
 class wall():
 	def __init__(self):
 		self.width = screen_width // cols
@@ -60,8 +57,6 @@ class wall():
 
 	def reset(self):
 		self.create_wall()
-
-#paddle class
 class paddle():
 	def __init__(self):
 		self.reset()
@@ -85,7 +80,6 @@ class paddle():
 		self.y = screen_height - (self.height * 2)
 		self.speed = 8
 		self.rect = Rect(self.x, self.y, self.width, self.height)
-
 class game_info():
 	def __init__(self):
 		self.reset()
@@ -106,8 +100,6 @@ class game_info():
 		self.pos_x = 0
 		self.pos_y = 0
 		self.displayInfo()
-
-#ball class
 class game_ball():
 	def __init__(self, x, y):
 		self.reset(x, y)
@@ -195,44 +187,85 @@ class game_ball():
 		game_info.vel_x = self.speed_x
 		game_info.vel_y = self.speed_y
 
-game_info = game_info()
 wall = wall()
 player_paddle = paddle()
+game_info = game_info()
 ball = game_ball(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
-run = True
-live_ball = False
-while run:
-	clock.tick(fps)	
-	screen.fill(bg)
-	#draw all objects
-	wall.draw_wall()
-	player_paddle.draw()
-	ball.draw()
 
-	if live_ball:
-		#Mover paddle
-		key = pygame.key.get_pressed()
-		if key[pygame.K_LEFT]:
-			player_paddle.move(left=True)
-		if key[pygame.K_RIGHT]:
-			player_paddle.move(left=False)		
-		#Coliciones
-		ball.move()	#Actualiza game info
-		if game_info.points == (cols * rows): #win
-			live_ball = False
-		elif game_info.points == -1: #lose
-			live_ball = False
+def loop():	
+  run = True
+  live_ball = False
+  while run:
+    clock.tick(fps)	
+    screen.fill(bg)
+    #draw all objects
+    wall.draw_wall()
+    player_paddle.draw()
+    ball.draw()
 
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			run = False
-		if event.type == pygame.MOUSEBUTTONDOWN and live_ball == False: # si perde espera el click para reiniciar
-			live_ball = True
-			ball.reset(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
-			player_paddle.reset()
-			game_info.reset()
-			wall.reset()
+    if live_ball:
+      #Mover paddle
+      key = pygame.key.get_pressed()
+      if key[pygame.K_LEFT]:
+        player_paddle.move(left=True)
+      if key[pygame.K_RIGHT]:
+        player_paddle.move(left=False)		
+      #Coliciones
+      ball.move()	#-->Actualiza game info
+      if game_info.points == (cols * rows): #win
+        live_ball = False
+      elif game_info.points == -1: #lose
+        live_ball = False
 
-	pygame.display.update()
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        run = False
+      if event.type == pygame.MOUSEBUTTONDOWN and live_ball == False: # si perde espera el click para reiniciar
+        live_ball = True
+        ball.reset(player_paddle.x + (player_paddle.width // 2), player_paddle.y - player_paddle.height)
+        player_paddle.reset()
+        game_info.reset()
+        wall.reset()
 
-pygame.quit()
+    pygame.display.update()
+
+  pygame.quit()
+
+loop()
+
+def eval_genomes(genomes, config):
+    """
+    Run each genome against eachother one time to determine the fitness.
+    """
+    for i, (genome_id1, genome1) in enumerate(genomes):
+        print(round(i/len(genomes) * 100), end=" ")
+        genome1.fitness = 0
+        for genome_id2, genome2 in genomes[min(i+1, len(genomes) - 1):]:
+            genome2.fitness = 0 if genome2.fitness == None else genome2.fitness
+            pong = PongGame(win, width, height)
+
+            force_quit = pong.train_ai(genome1, genome2, config, draw=True)
+            if force_quit:
+                quit()
+
+def run_neat(config):
+    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-85')
+    p = neat.Population(config)
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+    p.add_reporter(neat.Checkpointer(1))
+
+    winner = p.run(eval_genomes, 50)
+    with open("best.pickle", "wb") as f:
+        pickle.dump(winner, f)
+
+if __name__ == "__main__":
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, "config.txt")
+
+    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                         neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                         config_path)
+    run_neat(config)
+    #test_best_network(config)
