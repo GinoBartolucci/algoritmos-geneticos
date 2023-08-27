@@ -3,6 +3,8 @@ from .ball import Ball
 from .wall import Wall
 import pygame
 
+pygame.init()
+
 
 class GameInfo:
     def __init__(self, game_over, points, paddle_hits, ball_pos_x, ball_pos_y, paddle_pos_x, paddle_pos_y):
@@ -17,6 +19,8 @@ class GameInfo:
 
 class Game:
     BG_COLOR = (218, 200, 170)
+    SCORE_FONT = pygame.font.SysFont("comicsans", 50)
+    RED = (255, 0, 0)
 
     def __init__(self, window, window_width, window_height,   cols, rows):
         self.window = window
@@ -34,6 +38,12 @@ class Game:
         self.game_info.ball_pos_y = self.paddle.rect.y
         self.destroyed_blocks = 0
         self.collision_thresh = 6
+        
+    def _draw_hits(self):
+        hits_text = self.SCORE_FONT.render(
+            f"{self.destroyed_blocks}", 1, self.RED)
+        self.window.blit(hits_text, (self.window_width //
+                                     2 - hits_text.get_width()//2, 10))
 
     def _blocks_collision(self):
         # collision threshold
@@ -86,6 +96,7 @@ class Game:
         self.paddle.draw(self.window)
         self.ball.draw(self.window)
         self.wall.draw_wall(self.window)
+        self._draw_hits()
 
     def move_paddle(self, left):
         # Devuelve True si se puede mover, False si no
