@@ -25,10 +25,11 @@ class BreakoutGame:
             if not game_info.game_over:
                 # Mover paddle
                 key = pygame.key.get_pressed()
+                can_move = True
                 if key[pygame.K_LEFT]:
-                    self.game.move_paddle(left=True)
+                    can_move = self.game.move_paddle(left=True)
                 if key[pygame.K_RIGHT]:
-                    self.game.move_paddle(left=False)
+                    can_move = self.game.move_paddle(left=False)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

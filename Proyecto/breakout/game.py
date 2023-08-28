@@ -37,8 +37,8 @@ class Game:
                                   self.ball.rect.y, self.paddle.rect.x, self.paddle.rect.y)
         self.game_info.ball_pos_y = self.paddle.rect.y
         self.destroyed_blocks = 0
-        self.collision_thresh = 6
-        
+        self.collision_thresh = 12
+
     def _draw_hits(self):
         hits_text = self.SCORE_FONT.render(
             f"{self.destroyed_blocks}", 1, self.RED)
@@ -68,6 +68,7 @@ class Game:
                     # damage the block
                     self.wall.blocks[row_count][item_count] = (0, 0, 0, 0)
                     self.destroyed_blocks += 1
+                    self.ball.increase_vel(1.015)
                 # increase item counter
                 item_count += 1
             # increase row counter
@@ -99,12 +100,12 @@ class Game:
         self._draw_hits()
 
     def move_paddle(self, left):
-        # Devuelve True si se puede mover, False si no
         if left and (self.paddle.rect.x - self.paddle.SPEED) < 0:
             return False
         if not left and (self.paddle.rect.x + self.paddle.WIDTH + self.paddle.SPEED) > self.window_width:
             return False
         self.paddle.move(left)
+        return True
 
     def reset(self):
         self.paddle.reset()
@@ -116,7 +117,7 @@ class Game:
 
     def loop(self):
         if not self.game_info.game_over:
-            self.ball.move()
+            # self.ball.move()
             self.game_info.ball_pos_x = self.ball.rect.x
             self.game_info.ball_pos_y = self.ball.rect.y
             self._blocks_collision()
