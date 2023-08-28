@@ -4,7 +4,7 @@ from pygame.locals import *
 
 class Paddle:
     HEIGHT = 20
-    WIDTH = 60
+    WIDTH = 70
     SPEED = 8
     RED = (242, 85, 96)
     BLACK_RED = (220, 60, 70)

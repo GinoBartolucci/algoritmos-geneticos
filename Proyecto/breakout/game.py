@@ -117,7 +117,7 @@ class Game:
 
     def loop(self):
         if not self.game_info.game_over:
-            # self.ball.move()
+            self.ball.move()
             self.game_info.ball_pos_x = self.ball.rect.x
             self.game_info.ball_pos_y = self.ball.rect.y
             self._blocks_collision()
