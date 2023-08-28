@@ -32,11 +32,11 @@ class BreakoutGame:
             pygame.display.update()
             
     def train_ai(self, genome, config):
-        #clock = pygame.time.Clock()
+        clock = pygame.time.Clock()
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         run = True
         while run:
-            #clock.tick(80)
+            clock.tick(1000)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
@@ -56,11 +56,12 @@ class BreakoutGame:
             pygame.display.update()
             
             if (self.game.game_info.game_over):
-                self.calculate_fitness(genome, game_info)
+                self.calculate_fitness(genome, game_info, self.game.destroyed_blocks)
                 break
     
-    def calculate_fitness(self, genome, game_info):
+    def calculate_fitness(self, genome, game_info,destroyed_blocks):
         genome.fitness += game_info.paddle_hits
+        genome.fitness += destroyed_blocks*0.5
             
 def eval_genomes(genomes, config):
     width, height = 700, 700
