@@ -1,8 +1,8 @@
 #--- parameters for the XOR-2 experiment ---#
 
 [NEAT]
-fitness_criterion     = max 
-fitness_threshold     = 410000
+fitness_criterion     = min 
+fitness_threshold     = 50
 pop_size              = 50
 reset_on_extinction   = False
 
@@ -47,7 +47,7 @@ node_delete_prob        = 0.2
 
 # network parameters
 num_hidden              = 2
-num_inputs              = 4
+num_inputs              = 3
 num_outputs             = 3
 
 # node response options

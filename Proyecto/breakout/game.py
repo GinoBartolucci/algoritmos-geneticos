@@ -22,19 +22,21 @@ class Game:
     SCORE_FONT = pygame.font.SysFont("comicsans", 50)
     RED = (255, 0, 0)
 
-    def __init__(self, window, window_width, window_height,   cols, rows):
+    def __init__(self, window, window_width, window_height, cols, rows):
         self.window = window
         self.window_width = window_width
         self.window_height = window_height
-
+        self.cols = cols
+        self.rows = rows
         self.paddle = Paddle(self.window_width / 2 - Paddle.WIDTH / 2,
                              self.window_height - Paddle.HEIGHT * 2)
         self.ball = Ball(self.paddle.rect.x + (self.paddle.WIDTH //
                          2), self.paddle.rect.y - 1 - self.paddle.HEIGHT)
-        self.wall = Wall(self.window_width, cols, rows, self.BG_COLOR)
+        self.wall = Wall(self.window_width, self.cols,
+                         self.rows, self.BG_COLOR)
 
         self.game_info = GameInfo(False, 0, 0, self.ball.rect.x,
-                                  self.ball.rect.y, self.paddle.rect.x, self.paddle.rect.y)
+                                  self.ball.rect.y, self.paddle.rect.x + self.paddle.WIDTH/2, self.paddle.rect.y)
         self.game_info.ball_pos_y = self.paddle.rect.y
         self.destroyed_blocks = 0
         self.collision_thresh = 12
@@ -105,6 +107,8 @@ class Game:
         if not left and (self.paddle.rect.x + self.paddle.WIDTH + self.paddle.SPEED) > self.window_width:
             return False
         self.paddle.move(left)
+        self.game_info.paddle_pos_x = (
+            self.paddle.rect.x + self.paddle.WIDTH/2)
         return True
 
     def reset(self):
@@ -112,7 +116,7 @@ class Game:
         self.ball.reset()
         self.wall.reset()
         self.game_info = GameInfo(False, 0, 0, self.ball.rect.x,
-                                  self.ball.rect.y, self.paddle.rect.x, self.paddle.rect.y)
+                                  self.ball.rect.y, self.paddle.rect.x + self.paddle.WIDTH/2, self.paddle.rect.y)
         self.destroyed_blocks = 0
 
     def loop(self):
