@@ -18,7 +18,7 @@ class BreakoutGame:
         clock = pygame.time.Clock()
         run = True
         while run:
-            clock.tick(60)
+            clock.tick(140)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -72,7 +72,6 @@ class BreakoutGame:
             genome.fitness += 50 - game_info.paddle_hits/10
         else: genome.fitness += game_info.points
         # genome.fitness += destroyed_blocks*0.5
-        print(genome.fitness)
 
 
 def test_ai(config):
@@ -94,14 +93,14 @@ def eval_genomes(genomes, config):
 
 
 def run_neat(config):
-    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-49') #Para empezar desde una generación guardada, hay que comentar neat.Population si hago esto
+    #p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-8') #Para empezar desde una generación guardada, hay que comentar neat.Population si hago esto
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5)) #Guarda data cada 1 generación
+    p.add_reporter(neat.Checkpointer(1)) #Guarda data cada 1 generación
 
-    winner = p.run(eval_genomes, 15)  # numero de generaciones
+    winner = p.run(eval_genomes, 12)  # numero de generaciones
     with open('best.pickle', "wb") as f:
         pickle.dump(winner, f)
 
