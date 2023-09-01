@@ -20,9 +20,12 @@ print('CICLO: 0')
 print('\n TABLA DE DATOS: \n',marcoDeDatos)
 print('\n ESTADISTICAS: \n',marcoDeDatos_stats)
 for i in range(0, CICLOS):
-    bnarios_ruleta = f.ruleta(poblacion_binarios, COEF)
-    binarios_crossover = f.crossover(bnarios_ruleta, PROB_CROSSOVER)
+    binarios_ruleta = f.ruleta(poblacion_binarios, COEF)
+    binarios_crossover = f.crossover(binarios_ruleta, PROB_CROSSOVER)
     poblacion_binarios = f.mutacion(binarios_crossover, PROB_MUTACION)
+    
+    marcoDeDatos = f.generarDataFrame(poblacion_binarios, COEF)
+    marcoDeDatos_stats = f.generarEstadisticas(marcoDeDatos)    
 
 print('-------------------------------------------------------------------------\nCICLO: ', CICLOS)
 marcoDeDatos = f.generarDataFrame(poblacion_binarios, COEF)
