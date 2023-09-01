@@ -128,7 +128,7 @@ class Game:
             self._window_collision()
             self._paddle_collision()
 
-            if self.ball.rect.bottom > self.window_height:
+            if ( (self.ball.rect.bottom > self.window_height) or (self.game_info.paddle_hits >= 250) ):
                 self.game_info.game_over = True  # lose
 
             if self.game_info.points == (self.wall.cols * self.wall.rows):
