@@ -4,6 +4,7 @@ from pygame.locals import *
 import neat
 import os
 import pickle
+import math
 
 
 class BreakoutGame:
@@ -18,15 +19,18 @@ class BreakoutGame:
         clock = pygame.time.Clock()
         run = True
         while run:
-            clock.tick(60)
+            clock.tick(900)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-                    break
-            output = net.activate((self.paddle.rect.x, self.ball.rect.y, abs(
-                self.paddle.rect.y-self.ball.rect.y), self.ball.rect.x))
-            decision = output.index(max(output))
+                if event.type == pygame.MOUSEBUTTONDOWN and self.game.game_info.game_over:
+                    self.game.reset()
 
+            output = net.activate((self.game.game_info.paddle_pos_x,
+                                   abs(self.game.game_info.paddle_pos_y -
+                                       self.game.game_info.ball_pos_y),
+                                   self.game.game_info.ball_pos_x))
+            decision = output.index(max(output))
             if decision == 0:
                 pass
             elif decision == 1:
@@ -35,6 +39,7 @@ class BreakoutGame:
                 self.game.move_paddle(False)
             self.game.loop()
             self.game.draw()
+
             pygame.display.update()
 
     def train_ai(self, genome, config):
@@ -45,12 +50,6 @@ class BreakoutGame:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
-            key = pygame.key.get_pressed()
-            if key[pygame.K_0]:
-                clock.tick(0)
-            if key[pygame.K_6]:
-                clock.tick(60)
-
             output = net.activate((self.game.game_info.paddle_pos_x,
                                    abs(self.game.game_info.paddle_pos_y -
                                        self.game.game_info.ball_pos_y),
@@ -58,36 +57,43 @@ class BreakoutGame:
             decision = output.index(max(output))
 
             valid = True
-            if decision == 0:
-                genome.fitness -= 0.01
-            elif decision == 1:
+            if decision == 1:
                 valid = self.game.move_paddle(True)
             else:
                 valid = self.game.move_paddle(False)
             if not valid:  # Si el movimiento no se puede hacer
-                genome.fitness -= 0.1
-            if valid:
-                genome.fitness += 0.1
+                genome.fitness -= 0.001
 
             self.game.loop()
 
             self.game.draw()
             pygame.display.update()
 
-            if (self.game.game_info.game_over):
+            if (self.game.game_info.game_over or self.game.game_info.paddle_hits == 250):
                 self.calculate_fitness(
-                    genome, self.game.game_info)
+                    genome, self.game.game_info, self.game.rows * self.game.cols)
                 break
 
-    def calculate_fitness(self, genome, game_info):
-        genome.fitness += game_info.paddle_hits
-        if game_info.points == self.game.rows*self.game.cols:
-            genome.fitness += 50
-        # genome.fitness += destroyed_blocks*0.5
+    def calculate_fitness(self, genome, game_info, blocks):
+        p = game_info.points
+        h = game_info.paddle_hits
+        if p == blocks:
+            if h <= p:
+                genome.fitness += blocks * abs(p-h)
+            elif h > p:
+                genome.fitness += blocks - abs(p-h)
+        else:
+            if h <= p:
+                genome.fitness -= (blocks - p + 5)*3
+            elif h > p:
+                genome.fitness -= ((blocks - p + 5) + abs(p-h))*3
+
+        print(genome.id, "Fitness: ", genome.fitness,
+              "Puntos: ", p, "Golpes: ", h)
 
 
 def test_ai(config):
-    with open("best.pickle", "rb") as f:
+    with open("proyecto/best.pickle", "rb") as f:
         winner = pickle.load(f)
     width, height = 700, 700
     windows = pygame.display.set_mode((width, height))
@@ -112,9 +118,10 @@ def run_neat(config):
     p.add_reporter(stats)
     # p.add_reporter(neat.Checkpointer(20)) #Guarda data cada 1 generación
 
-    winner = p.run(eval_genomes, 50)  # numero de generaciones
-    with open('best.pickle', "wb") as f:
+    winner = p.run(eval_genomes, 20)  # numero de generaciones
+    with open('proyecto/best.pickle', "wb") as f:
         pickle.dump(winner, f)
+        print("Guardado")
 
 
 if __name__ == "__main__":
@@ -123,6 +130,9 @@ if __name__ == "__main__":
 
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
-    # test_ai(config)
-    run_neat(config)
+    print("Si le das dos veces enter se testea, si le escribis cualquiera se testea se entrena")
+    if str(input()) != "":
+        run_neat(config)
+    else:
+        test_ai(config)
 pygame.quit()

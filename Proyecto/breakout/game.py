@@ -13,7 +13,7 @@ class GameInfo:
         self.ball_pos_y = ball_pos_y
         self.paddle_pos_x = paddle_pos_x
         self.paddle_pos_y = paddle_pos_y
-        self.paddle_hits = paddle_hits
+        self.paddle_hits = paddle_hits + 1
         self.game_over = game_over
 
 
@@ -42,10 +42,13 @@ class Game:
         self.collision_thresh = 12
 
     def _draw_hits(self):
+        points_text = self.SCORE_FONT.render(
+            "Points: "f"{self.game_info.points}", 1, self.RED)
+        self.window.blit(points_text, (self.window_width -
+                         points_text.get_width()-10, 10))
         hits_text = self.SCORE_FONT.render(
-            f"{self.destroyed_blocks}", 1, self.RED)
-        self.window.blit(hits_text, (self.window_width //
-                                     2 - hits_text.get_width()//2, 10))
+            "Hits: "f"{self.game_info.paddle_hits}", 1, self.RED)
+        self.window.blit(hits_text, (10, 10))
 
     def _blocks_collision(self):
         # collision threshold
