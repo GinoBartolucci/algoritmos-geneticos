@@ -5,7 +5,8 @@ import neat
 import os
 import pickle
 
-
+fitness_list = []
+game_list = []
 class BreakoutGame:
     def __init__(self, window, width, height):
         self.game = Game(window, width, height, 6, 6)
@@ -18,14 +19,13 @@ class BreakoutGame:
         clock = pygame.time.Clock()
         run = True
         while run:
-            clock.tick(140)
+            clock.tick(9600)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                     break
             output = net.activate((self.game.game_info.paddle_pos_x,abs(self.game.game_info.paddle_pos_y-self.game.game_info.ball_pos_y),self.game.game_info.ball_pos_x))
             decision = output.index(max(output))
-
             if decision == 0:
                 pass
             elif decision == 1:
@@ -35,6 +35,11 @@ class BreakoutGame:
             self.game.loop()
             self.game.draw()
             pygame.display.update()
+            
+            if (self.game.game_info.game_over):
+                if (self.game.game_info.points == 36): game_list.append(1)
+                else: game_list.append(0)
+                break
 
     def train_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -45,19 +50,12 @@ class BreakoutGame:
                     quit()
             output = net.activate((self.game.game_info.paddle_pos_x,abs(self.game.game_info.paddle_pos_y-self.game.game_info.ball_pos_y),self.game.game_info.ball_pos_x))
             decision = output.index(max(output))
-            #valid = True
-            #if decision == 0:
-            #    genome.fitness -= 0.01
             if decision == 0:
                 pass
             if decision == 1:
                 valid = self.game.move_paddle(True)
             else:
                 valid = self.game.move_paddle(False)
-            #if not valid:  # Si el movimiento no se puede hacer
-            #    genome.fitness -= 0.1
-            #if valid:
-            #    genome.fitness += 0.1
             self.game.loop()
             self.game.draw()
             pygame.display.update()
@@ -75,7 +73,7 @@ class BreakoutGame:
 
 
 def test_ai(config):
-    with open("best.pickle", "rb") as f:
+    with open("best.pickle5", "rb") as f:
         winner = pickle.load(f)
     width, height = 700, 700
     windows = pygame.display.set_mode((width, height))
@@ -86,10 +84,13 @@ def test_ai(config):
 def eval_genomes(genomes, config):
     width, height = 700, 700
     windows = pygame.display.set_mode((width, height))
+    gen = []
     for genome_id, genome in genomes:
         genome.fitness = 0
         game = BreakoutGame(windows, width, height)
         game.train_ai(genome, config)
+        gen.append(genome.fitness)
+    fitness_list.append(gen)
 
 
 def run_neat(config):
@@ -100,9 +101,10 @@ def run_neat(config):
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(1)) #Guarda data cada 1 generación
 
-    winner = p.run(eval_genomes, 12)  # numero de generaciones
-    with open('best.pickle', "wb") as f:
+    winner = p.run(eval_genomes, 35)  # numero de generaciones
+    with open('best.pickle35', "wb") as f:
         pickle.dump(winner, f)
+        print(fitness_list)
 
 
 if __name__ == "__main__":
@@ -111,6 +113,8 @@ if __name__ == "__main__":
 
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
-    test_ai(config)
+    for i in range(100):
+        test_ai(config)
+    print(game_list)
     #run_neat(config)
 pygame.quit()
