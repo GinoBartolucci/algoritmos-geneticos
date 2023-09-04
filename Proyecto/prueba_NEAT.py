@@ -251,9 +251,6 @@ def loop():
 
     pygame.quit()
 
-# -----------------------------------------------------------------------------------------------------------------------
-# El fittnes es el numero de bloque que rompieron
-# lo que va a hacer es llamar al loop del juego 50 veces pasandole las generaciones
 
 
 def eval_genomes(genomes, config):

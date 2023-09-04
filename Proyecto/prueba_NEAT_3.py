@@ -19,7 +19,7 @@ class BreakoutGame:
         clock = pygame.time.Clock()
         run = True
         while run:
-            clock.tick(9600)
+            clock.tick(140)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -53,9 +53,9 @@ class BreakoutGame:
             if decision == 0:
                 pass
             if decision == 1:
-                valid = self.game.move_paddle(True)
+                self.game.move_paddle(True)
             else:
-                valid = self.game.move_paddle(False)
+                self.game.move_paddle(False)
             self.game.loop()
             self.game.draw()
             pygame.display.update()
@@ -69,11 +69,9 @@ class BreakoutGame:
         if game_info.points == self.game.rows*self.game.cols:
             genome.fitness += 50 - game_info.paddle_hits/10
         else: genome.fitness += game_info.points
-        # genome.fitness += destroyed_blocks*0.5
-
 
 def test_ai(config):
-    with open("best.pickle5", "rb") as f:
+    with open("best.pickle30", "rb") as f:
         winner = pickle.load(f)
     width, height = 700, 700
     windows = pygame.display.set_mode((width, height))
@@ -99,10 +97,10 @@ def run_neat(config):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(1)) #Guarda data cada 1 generación
+    p.add_reporter(neat.Checkpointer(10)) #Guarda checkpoint cada 1 generación
 
-    winner = p.run(eval_genomes, 35)  # numero de generaciones
-    with open('best.pickle35', "wb") as f:
+    winner = p.run(eval_genomes, 30)  # numero de generaciones
+    with open('best.pickle30', "wb") as f:
         pickle.dump(winner, f)
         print(fitness_list)
 
@@ -113,8 +111,6 @@ if __name__ == "__main__":
 
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
-    for i in range(100):
-        test_ai(config)
-    print(game_list)
-    #run_neat(config)
+    test_ai(config)     # Testear el best.pickle
+    #run_neat(config)   # Entrenar y generar best pickle
 pygame.quit()
