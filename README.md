@@ -8,10 +8,10 @@ Este repositorio contiene los trabajos practicos de la materia Algoritmos Geneti
 * [Gino Bartolucci](https://github.com/GinoBartolucci)
 * [Joaquin Betes](https://github.com/JoaquinBetes)
 
-[Proyecto Integrador - Machine Learning.](Proyecto/README.md)
+[Proyecto Integrador - Machine Learning.](Proyecto)
 
 Este contiene los siguientes trabajos practicos:
 
-* [TP1 - Máximo de una función](TP1/README.md)
-* [TP2 - Máximo de una función](TP2/README.md)
-* [TP3 - ](TP3/README.md)
+* [TP1 - Máximo de una función](TP1)
+* [TP2 - Máximo de una función](TP2)
+* [TP3 - ](TP3)
