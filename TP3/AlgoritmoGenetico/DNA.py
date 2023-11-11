@@ -89,7 +89,7 @@ class DNA:
             cromosoma_info = cromosoma.__list__()
             
             info.append(cromosoma.getGenesInStr())
-            info_decimal.append(cromosoma.decimal)
+            # info_decimal.append(cromosoma.decimal)
             info_fitness.append(cromosoma.fitness)
             info_objetivo.append(cromosoma.objetivo)
 

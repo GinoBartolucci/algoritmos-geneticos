@@ -57,7 +57,7 @@ class Cromosoma:
 
     def __list__(self) -> list:
         "Devuelve el valor del cromosoma"
-        return [self.decimal,self.fitness,self.objetivo]
+        return [self.fitness,self.objetivo]
  
  
     def createChildern(self,genes):
@@ -82,7 +82,7 @@ class Cromosoma:
         hijo2 = Cromosoma(genes__hijo2) 
         
         # hijo1.mutar() # falta ver como mutar
-        # hijo2.mutar() # falta ver como mutar
+        # hijo2.mutar() # falta ver como mutar (convertirlo a binario, mutar y volver a decimal?)
 
         return hijo1,hijo2
 
