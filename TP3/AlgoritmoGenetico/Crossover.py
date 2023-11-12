@@ -21,29 +21,23 @@ class Crossover:
     @staticmethod
     def ciclico(cromosoma1,cromosoma2) -> list:
         def inicializar_genes_hijos(cromosoma1,cromosoma2):
-            return [-1] * len(cromosoma1.genes),[-1] * len(cromosoma2.genes)
+            return cromosoma1.genes.copy(), cromosoma2.genes.copy()
+        
         def copiar_genes(cromosoma,genes_hijo):
             for i in range(len(cromosoma.genes)):
-                if cromosoma.genes[i] == cromosoma.genes[punto_inicio]:
+                if genes_hijo[i] == -1:
                     genes_hijo[i] = cromosoma.genes[i]
             return genes_hijo
         
-        punto_inicio =  random.randint(0, len(cromosoma1.genes) - 1)
         genes_hijo1, genes_hijo2 = inicializar_genes_hijos(cromosoma1,cromosoma2)
-        while True:
-            genes_hijo1 = copiar_genes(cromosoma1,genes_hijo1)
-            genes_hijo2 = copiar_genes(cromosoma2,genes_hijo2)
-            
-            # Encontrar el siguiente punto de inicio
-            punto_inicio = -1
-            for i in range(len(genes_hijo1)):
-                if genes_hijo1[i] == -1:
-                    punto_inicio = i
+        while -1 in genes_hijo1 or -1 in genes_hijo2:
+            punto_inicio = random.randint(0, len(cromosoma1.genes) - 1)
+            punto_actual = punto_inicio
+            while True:
+                genes_hijo1[punto_actual], genes_hijo2[punto_actual] = genes_hijo2[punto_actual], genes_hijo1[punto_actual]
+                punto_actual = cromosoma1.genes.index(cromosoma2.genes[punto_actual])
+                if punto_actual == punto_inicio:
                     break
-            # Si se han copiado todos los genes, terminar el crossover
-            if punto_inicio == -1:
-                break
- 
  
         return True, genes_hijo1, genes_hijo2
         

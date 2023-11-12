@@ -35,7 +35,7 @@ class DNA:
         """
         poblacion = []
         for iteracion in range(cantidad_cromosomas):
-            genes = random.sample(range(1, 24), 23)
+            genes = random.sample(range(0, 23), 23)
             cromosoma = Cromosoma(genes=genes)
             poblacion.append(cromosoma)
         return poblacion
@@ -58,23 +58,17 @@ class DNA:
                 ciudad_A,ciudad_B = cromosoma.genes[posicion],cromosoma.genes[posicion+1]
                 distancia_ciudades = funcion(ciudad_A,ciudad_B) 
                 distancia_total += distancia_ciudades
-
+            
             cromosoma.objetivo = distancia_total
-        
-        self.objetivo["Suma"]  = sum([cromosoma.objetivo for cromosoma in self.poblacion])
-        self.objetivo["Promedio"] = self.objetivo["Suma"]/len(self.poblacion)
-        self.objetivo["Maximo"] = max([cromosoma.objetivo for cromosoma in self.poblacion])
+ 
 
         return self.objetivo
 
     def calcular_fitness(self,funcion):
         for cromosoma in self.poblacion:
-            fitness = funcion(cromosoma.objetivo,self.objetivo["Suma"])
-            cromosoma.fitness = fitness
-
-        self.fitness["Suma"] = sum([cromosoma.fitness for cromosoma in self.poblacion])
-        self.fitness["Promedio"] = self.fitness["Suma"]/len(self.poblacion)
-        self.fitness["Maximo"] = max([cromosoma.fitness for cromosoma in self.poblacion])
+            # print(cromosoma.objetivo)
+            fitness = funcion(cromosoma.objetivo)
+            cromosoma.fitness = fitness 
 
         return self.fitness
  
@@ -86,32 +80,11 @@ class DNA:
         info_objetivo = []
 
         for cromosoma in self.poblacion:
-            cromosoma_info = cromosoma.__list__()
-            
-            info.append(cromosoma.getGenesInStr())
-            # info_decimal.append(cromosoma.decimal)
+ 
             info_fitness.append(cromosoma.fitness)
             info_objetivo.append(cromosoma.objetivo)
 
         return info,info_decimal,info_fitness,info_objetivo
-
-    
-    @staticmethod
-    def cruzar_poblacion(poblacion):
-        """
-            -> list:Cromosoma
-        """
-        hijos = []
-        # Seleccionamos los cromosomas a cruzar
-        for posicion in range(0,len(poblacion),2):
-            cromosoma_1 = poblacion[posicion]
-            cromosoma_2 = poblacion[posicion+1]
-            # Cruzamos los cromosomas
-            hijo1,hijo2 = cromosoma_1.cruzar(cromosoma_2)
-            hijos.append(hijo1)
-            hijos.append(hijo2)
-    
-        return hijos
 
 
     @staticmethod
