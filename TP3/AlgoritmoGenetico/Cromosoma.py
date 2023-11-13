@@ -27,16 +27,10 @@ class Cromosoma:
    
     def __init__(self,genes,fitness=None) -> None:
         self.genes = genes
-        # self.decimal = self.genesToDecimal()
         self.fitness = fitness 
         self.objetivo = None
         self.hijos = []
-        # self.decimalToBinary()
- 
- 
-
- 
-    
+        
     def __str__(self) -> str:
         "Devuelve el valor del cromosoma"
         return str(f"{self.genes} {self.objetivo}")
@@ -45,11 +39,7 @@ class Cromosoma:
     def __list__(self) -> list:
         "Devuelve el valor del cromosoma"
         return [self.fitness,self.objetivo]
- 
- 
-    def createChildern(self,genes):
-        "Crea los hijos a partir de los genes"
-        self.hijos.append(Cromosoma(genes))
+
 
  
     def cruzar_ciclico(self,otro_cromosoma):
@@ -57,28 +47,14 @@ class Cromosoma:
         seRealizoCrossOver,genes_hijo1,genes__hijo2= Crossover.ciclico(self,otro_cromosoma)
         hijo1 = Cromosoma(genes_hijo1)
         hijo2 = Cromosoma(genes__hijo2) 
-        
-        # hijo1.mutar() # falta ver como mutar
-        # hijo2.mutar() # falta ver como mutar (convertirlo a binario, mutar y volver a decimal?)
+        hijo1.mutar()  
+        hijo2.mutar()  
 
         return hijo1,hijo2
 
     def mutar(self):
-        genes = len(self.genes)
-        opciones = [True, False]
-        np.random.seed()
-        prob_mut = np.array([Cromosoma.getProbMutacion(), (1-Cromosoma.getProbMutacion())])
-        debeMutar = np.random.choice(opciones, size=1, p=prob_mut)[0]
-        if debeMutar:
-            posiciones = [x for x in range(0, genes)]
-            probMutacion = [1/genes for x in range(0, genes)]
-            posicionMutacion_1 = np.random.choice(posiciones, size=1, p=probMutacion)[0]
-            posicionMutacion_2 = np.random.choice(posiciones, size=1, p=probMutacion)[0]
-            ciudad_1 = self.genes[posicionMutacion_1]
-            ciudad_2 = self.genes[posicionMutacion_2]
-
-            self.genes[posicionMutacion_1] = ciudad_2
-            self.genes[posicionMutacion_2] = ciudad_1
-
+        if random.random() < Cromosoma.getProbMutacion():
+            i, j = random.sample(range(len(self.genes)-1), 2)
+            self.genes[i], self.genes[j] = self.genes[j], self.genes[i]
 
     
