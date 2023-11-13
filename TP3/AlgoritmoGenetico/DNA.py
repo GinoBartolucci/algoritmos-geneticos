@@ -56,7 +56,7 @@ class DNA:
         for cromosoma in self.poblacion:
             distancia_total = 0
             distancia_total += funcion(cromosoma.genes[-1],cromosoma.genes[0])
-            for posicion in range(0,len(cromosoma.genes)-2):
+            for posicion in range(0,len(cromosoma.genes)-1):
                 ciudad_A,ciudad_B = cromosoma.genes[posicion],cromosoma.genes[posicion+1]
                 distancia_ciudades = funcion(ciudad_A,ciudad_B) 
                 distancia_total += distancia_ciudades
