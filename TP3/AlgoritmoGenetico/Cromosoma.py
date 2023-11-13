@@ -29,19 +29,8 @@ class Cromosoma:
         self.genes = genes
         self.fitness = fitness 
         self.objetivo = None
-        self.hijos = []
-        
-    def __str__(self) -> str:
-        "Devuelve el valor del cromosoma"
-        return str(f"{self.genes} {self.objetivo}")
- 
+        self.hijos = [] 
 
-    def __list__(self) -> list:
-        "Devuelve el valor del cromosoma"
-        return [self.fitness,self.objetivo]
-
-
- 
     def cruzar_ciclico(self,otro_cromosoma):
         "Realiza el crossover ciclico entre dos cromosomas"
         seRealizoCrossOver,genes_hijo1,genes__hijo2= Crossover.ciclico(self,otro_cromosoma)
