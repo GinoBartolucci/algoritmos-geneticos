@@ -52,18 +52,17 @@ class DNA:
         Mi idea aca es ir sumando la distancia entre las distintas ciudades
         tener en cuenta que debo tomar entre dos ciudades la distancia
         """
-        print("self.poblacion",len(self.poblacion))
+        # print("self.poblacion",len(self.poblacion))
         for cromosoma in self.poblacion:
             distancia_total = 0
+            distancia_total += funcion(cromosoma.genes[-1],cromosoma.genes[0])
             for posicion in range(0,len(cromosoma.genes)-2):
                 ciudad_A,ciudad_B = cromosoma.genes[posicion],cromosoma.genes[posicion+1]
                 distancia_ciudades = funcion(ciudad_A,ciudad_B) 
                 distancia_total += distancia_ciudades
             index = self.poblacion.index(cromosoma)
             self.poblacion[index].objetivo = distancia_total
-
-
-
+ 
         objetivos = []
         for cromosoma in self.poblacion:
             objetivos.append(cromosoma.objetivo)
@@ -72,6 +71,7 @@ class DNA:
         return objetivos
 
     def calcular_fitness(self,funcion):
+        # total = sum([cromosoma.objetivo for cromosoma in self.poblacion])
         for cromosoma in self.poblacion:
             # print(cromosoma.objetivo)
             fitness = funcion(cromosoma.objetivo)
